@@ -15,7 +15,7 @@ setup(
     license='BSD License',  # example license
     description='A simple Django app to conduct Web-based polls.',
     long_description=README,
-    url='https://www.example.com/',
+    url='https://django.modelingonline.com',
     author='Vitalii Abetkin',
     author_email='abvit89@gmail.com',
     install_requires=[],
