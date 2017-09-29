@@ -2,9 +2,6 @@ import os
 import requests
 import json
 
-from collections import Iterable
-from contextlib import ExitStack
-
 from django.core.management.base import BaseCommand
 
 URL = 'http://django.datamodeling.online'
@@ -20,27 +17,23 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        with ExitStack() as stack:
-            if os.environ.get('DEBUG'):
-                import ipdb
-                stack.enter_context(ipdb.launch_ipdb_on_exception())
-            app_label = options['app_label']
-            diagram = make_diagram(app_label)
-            diagram = json.dumps(diagram)
-            with open('dia.json', 'w') as f:
-                f.write(diagram)
+        app_label = options['app_label']
+        diagram = make_diagram(app_label)
+        diagram = json.dumps(diagram)
+        with open('dia.json', 'w') as f:
+            f.write(diagram)
 
-            self.stdout.write('Please enter your credentials at editor.ponyorm.com')
-            login = input('Login: ')
-            passwd = input('Password: ')
-            diagram_name = options['diagram_name'] or app_label
+        self.stdout.write('Please enter your credentials at editor.ponyorm.com')
+        login = input('Login: ')
+        passwd = input('Password: ')
+        diagram_name = options['diagram_name'] or app_label
 
-            resp = requests.post(URL + '/import_project', json={
-                'login': login, 'password': passwd, 'diagram': diagram,
-                'diagram_name': diagram_name, 'private': True,
-            })
-            resp = json.loads(resp.text)
-            self.stdout.write('\nYour diagram is available at http://editor.ponyorm.com%s' % resp["link"])
+        resp = requests.post(URL + '/import_project', json={
+            'login': login, 'password': passwd, 'diagram': diagram,
+            'diagram_name': diagram_name, 'private': True,
+        })
+        resp = json.loads(resp.text)
+        self.stdout.write('\nYour diagram is available at http://editor.ponyorm.com%s' % resp["link"])
 
 
 OPTIONS = (

@@ -18,7 +18,7 @@ setup(
     url='https://django.modelingonline.com',
     author='Vitalii Abetkin',
     author_email='abvit89@gmail.com',
-    install_requires=[],
+    install_requires=['requests'],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
