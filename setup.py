@@ -12,7 +12,7 @@ setup(
     version='0.1',
     packages=['erdiagram'],
     include_package_data=True,
-    license='BSD License',  # example license
+    license='BSD License',
     description='A simple Django app to conduct Web-based polls.',
     long_description=README,
     url='https://django.modelingonline.com',
