@@ -1,7 +1,7 @@
 # erdiagram
 
 **erdiagram** is a django application that allows you to export your django models
-to the [online data modeling](django.datamodeling.com) site.
+to the [online data modeling](http://django.datamodeling.online) site.
 
 The application provides `erdiagram` django command.
 
@@ -29,4 +29,4 @@ INSTALLED_APPS = [
 python manage.py erdiagram myapp --name mydiagram
 ```
 
-You will be asked to enter your credentials for http://django.datamodeling.com. Then you can login to the site and edit your diagram online. 
+You will be asked to enter your credentials for http://django.datamodeling.online. Then you can login to the site and edit your diagram online. 

@@ -7,7 +7,7 @@ from contextlib import ExitStack
 
 from django.core.management.base import BaseCommand
 
-URL = 'http://django.onlinemodeling.com'
+URL = 'http://django.datamodeling.online'
 
 class Command(BaseCommand):
     help = 'Export as a diagram to editor.ponyorm.com.'
