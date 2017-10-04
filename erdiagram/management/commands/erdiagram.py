@@ -172,6 +172,8 @@ class Field:
         kwargs['name'] = name
         kwargs['type'] = callable.split('.')[-1]
         assert not args
+        if kwargs['type'] == 'AutoField' and name == 'id':
+            return None
         kwargs = cls.transform(kwargs, field)
         if kwargs is None:
             return None
