@@ -30,8 +30,10 @@ class Command(BaseCommand):
 
         self.stdout.write('Please enter your credentials at {}'.format(URL))
         if PY2:
-            input = raw_input
-        login = input('Login: ')
+            input_ = raw_input
+        else:
+            input_ = input
+        login = input_('Login: ')
         passwd = input('Password: ')
         diagram_name = options['diagram_name'] or app_label
 
