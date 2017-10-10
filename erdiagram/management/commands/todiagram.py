@@ -8,7 +8,7 @@ PY2 = sys.version_info[0] == 2
 
 from django.core.management.base import BaseCommand
 
-URL = 'http://django.editor.ponyorm.com'
+URL = 'https://django.editor.ponyorm.com'
 # URL = 'http://localhost:5001'
 
 class Command(BaseCommand):
