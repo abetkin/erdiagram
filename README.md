@@ -23,10 +23,10 @@ INSTALLED_APPS = [
 ]
 ```
 
-3. To export models for application `myapp`, use `erdiagram` command:
+3. To export models for application `myapp`, use `todiagram` command:
 
 ```
-python manage.py erdiagram myapp --name mydiagram
+python manage.py todiagram myapp --name mydiagram
 ```
 
 You will be asked to enter your credentials for http://django.datamodeling.online. Then you can login to the site and edit your diagram online. 
