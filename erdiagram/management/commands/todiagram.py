@@ -2,9 +2,14 @@ import os
 import requests
 import json
 
+import sys
+PY2 = sys.version_info[0] == 2
+
+
 from django.core.management.base import BaseCommand
 
-URL = 'http://django.datamodeling.online'
+URL = 'http://django.editor.ponyorm.com'
+# URL = 'http://localhost:5001'
 
 class Command(BaseCommand):
     help = 'Export as a diagram to editor.ponyorm.com.'
@@ -23,7 +28,9 @@ class Command(BaseCommand):
         with open('dia.json', 'w') as f:
             f.write(diagram)
 
-        self.stdout.write('Please enter your credentials at editor.ponyorm.com')
+        self.stdout.write('Please enter your credentials at {}'.format(URL))
+        if PY2:
+            input = raw_input
         login = input('Login: ')
         passwd = input('Password: ')
         diagram_name = options['diagram_name'] or app_label
@@ -32,8 +39,11 @@ class Command(BaseCommand):
             'login': login, 'password': passwd, 'diagram': diagram,
             'diagram_name': diagram_name, 'private': True,
         })
+        if resp.status_code != 200:
+             self.stdout.write('Server returned {}'.format(resp.status_code))
+             return
         resp = json.loads(resp.text)
-        self.stdout.write('\nYour diagram is available at http://editor.ponyorm.com%s' % resp["link"])
+        self.stdout.write('\nYour diagram is available at {URL}{link}'.format(URL=URL, link=resp['link']))
 
 
 OPTIONS = (
@@ -57,7 +67,7 @@ class Placing:
         self.entities = entities
 
     def apply(self):
-        size = ceil(sqrt(len(self.entities)))
+        size = int(ceil(sqrt(len(self.entities))))
         top = self.SPACE_HEIGHT
         height = 0
         for row in range(size):
@@ -178,8 +188,8 @@ class Field:
         if kwargs is None:
             return None
         for k, v in tuple(kwargs.items()):
-            if not isinstance(v, (str, int, bool, type(None))):
-                kwargs[k] = cls.transform_value(v)
+            if inspect.isfunction(v) and v.__name__.isupper():
+                kwargs[k] = v.__name__
         kwargs.setdefault('objectType', 'attribute')
         return kwargs
     
@@ -196,9 +206,3 @@ class Field:
         if dic.get('parent_link'):
             return None
         return dic
-
-    @classmethod
-    def transform_value(cls, value):
-        if inspect.isfunction(value) and value.__name__.isupper():
-            return value.__name__
-        raise NotImplementedError
