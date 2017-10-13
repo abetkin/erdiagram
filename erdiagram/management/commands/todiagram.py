@@ -8,8 +8,8 @@ PY2 = sys.version_info[0] == 2
 
 from django.core.management.base import BaseCommand
 
-# URL = 'https://django.datamodeling.online'
-URL = 'http://localhost:5001'
+URL = 'https://django.datamodeling.online'
+# URL = 'http://localhost:5001'
 
 class Command(BaseCommand):
     help = 'Export as a diagram to django.datamodeling.online.'
