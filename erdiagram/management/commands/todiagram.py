@@ -8,11 +8,11 @@ PY2 = sys.version_info[0] == 2
 
 from django.core.management.base import BaseCommand
 
-URL = 'https://django.editor.ponyorm.com'
-# URL = 'http://localhost:5001'
+# URL = 'https://django.datamodeling.online'
+URL = 'http://localhost:5001'
 
 class Command(BaseCommand):
-    help = 'Export as a diagram to editor.ponyorm.com.'
+    help = 'Export as a diagram to django.datamodeling.online.'
 
     def add_arguments(self, parser):
         parser.add_argument('app_label', type=str)
@@ -25,27 +25,20 @@ class Command(BaseCommand):
         app_label = options['app_label']
         diagram = make_diagram(app_label)
         diagram = json.dumps(diagram)
-        with open('dia.json', 'w') as f:
-            f.write(diagram)
-
-        self.stdout.write('Please enter your credentials at {}'.format(URL))
-        if PY2:
-            input_ = raw_input
-        else:
-            input_ = input
-        login = input_('Login: ')
-        passwd = input('Password: ')
+        if os.environ.get('DEBUG'):
+            with open('dia.json', 'w') as f:
+                f.write(diagram)
+        import uuid
+        path = uuid.uuid4().hex
+        # upload it
+        upload_url = f'{URL}/import/upload/{path}'
+        r = requests.post(upload_url, data=diagram)
+        if r.status_code != 200:
+            self.stderr.write(f'{r.status_code} from {upload_url}')
+            return
         diagram_name = options['diagram_name'] or app_label
-
-        resp = requests.post(URL + '/import_project', json={
-            'login': login, 'password': passwd, 'diagram': diagram,
-            'diagram_name': diagram_name, 'private': True,
-        })
-        if resp.status_code != 200:
-             self.stdout.write('Server returned {}'.format(resp.status_code))
-             return
-        resp = json.loads(resp.text)
-        self.stdout.write('\nYour diagram is available at {URL}{link}'.format(URL=URL, link=resp['link']))
+        link = f'{URL}/import/{diagram_name}/{path}'
+        self.stdout.write(f'\nTo finish import please open {link} in your browser.')
 
 
 OPTIONS = (
@@ -199,12 +192,11 @@ class Field:
     def transform(cls, dic, field):
         if 'to' in dic:
             dic['to'] = dic['to'].split('.')[-1]
-            if 'related_name' in dic:
-                dic['is_related_name_implicit'] = False
-            else:
-                dic['related_name'] = field.rel.name
-                dic['is_related_name_implicit'] = True
+            dic['related_name'] = field.rel.name
             dic['objectType'] = 'attributeRelationship'
+            to_app = field.rel.to._meta.app_label
+            if to_app != field.model._meta.app_label:
+                dic['to'] = f"{to_app}.{dic['to']}"
         if dic.get('parent_link'):
             return None
         return dic

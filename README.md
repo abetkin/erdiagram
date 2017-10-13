@@ -29,4 +29,8 @@ INSTALLED_APPS = [
 python manage.py todiagram myapp --name mydiagram
 ```
 
-You will be asked to enter your credentials for http://django.datamodeling.online. Then you can login to the site and edit your diagram online. 
+You should see following output
+
+```To finish import please open https://django.datamodeling.online/import/a5/04a616953d344b45b809878203944550 in your browser.```
+
+Follow the link provided and you will be redirected to the diagram page.
