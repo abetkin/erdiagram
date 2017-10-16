@@ -34,3 +34,9 @@ You should see following output
 ```To finish import please open https://django.datamodeling.online/import/a5/04a616953d344b45b809878203944550 in your browser.```
 
 Follow the link provided and you will be redirected to the diagram page.
+
+The diagram created will be private by default. To make a public one pass the `--public` flag:
+
+```
+python manage.py todiagram myapp --public
+```

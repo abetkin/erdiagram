@@ -8,6 +8,7 @@ PY2 = sys.version_info[0] == 2
 
 from django.core.management.base import BaseCommand
 
+
 URL = 'https://django.datamodeling.online'
 # URL = 'http://localhost:5001'
 
@@ -20,23 +21,30 @@ class Command(BaseCommand):
             '--name', dest='diagram_name', default=None,
             help="Name of the imported diagram.",
         )
+        parser.add_argument(
+            '--public', action='store_true', dest='is_public',
+            help="Make the diagram public.",
+        )
 
     def handle(self, *args, **options):
         app_label = options['app_label']
         diagram = make_diagram(app_label)
-        diagram = json.dumps(diagram)
         if os.environ.get('DEBUG'):
             with open('dia.json', 'w') as f:
-                f.write(diagram)
+                f.write(json.dumps(diagram))
         import uuid
         path = uuid.uuid4().hex
         # upload it
         upload_url = f'{URL}/import/upload/{path}'
-        r = requests.post(upload_url, data=diagram)
+        diagram.update({
+            'is_public': options['is_public'],
+        })
+        r = requests.post(upload_url, json=diagram)
         if r.status_code != 200:
             self.stderr.write(f'{r.status_code} from {upload_url}')
             return
         diagram_name = options['diagram_name'] or app_label
+        
         link = f'{URL}/import/{diagram_name}/{path}'
         self.stdout.write(f'\nTo finish import please open {link} in your browser.')
 
