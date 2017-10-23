@@ -77,6 +77,9 @@ class Placing:
     SPACE_HEIGHT = 30
     SPACE_WIDTH = 20
 
+    OFFSET_X = 5000
+    OFFSET_Y = 5000
+
     def __init__(self, entities):
         self.entities = entities
 
@@ -97,7 +100,10 @@ class Placing:
                     return
                 w = self.get_width(entity)
                 entity.update({
-                    'left': left, 'top': top, 'width': round(w), 'height': round(h),
+                    'left': left + self.OFFSET_X,
+                    'top': top + self.OFFSET_Y,
+                    'width': round(w),
+                    'height': round(h),
                 })
                 left += w + self.SPACE_WIDTH
             top += height + self.SPACE_HEIGHT
@@ -149,8 +155,8 @@ def make_diagram(app_label):
     dic = {
         'entities': entities,
         'state': {
-            'scrollTop': 0,
-            'scrollLeft': 0,
+            'scrollTop': Placing.OFFSET_Y,
+            'scrollLeft': Placing.OFFSET_X,
         },
     }
     if entities:
