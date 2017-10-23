@@ -5,12 +5,22 @@ import json
 import sys
 PY2 = sys.version_info[0] == 2
 
+from contextlib import contextmanager
 
 from django.core.management.base import BaseCommand
 
 
 URL = 'https://django.datamodeling.online'
 # URL = 'http://localhost:5001'
+
+@contextmanager
+def debugme():
+    if not os.environ.get('DEBUG'):
+        yield
+        return
+    import ipdb
+    with ipdb.launch_ipdb_on_exception():
+        yield
 
 class Command(BaseCommand):
     help = 'Export as a diagram to django.datamodeling.online.'
@@ -26,6 +36,7 @@ class Command(BaseCommand):
             help="Make the diagram public.",
         )
 
+    @debugme()
     def handle(self, *args, **options):
         app_label = options['app_label']
         diagram = make_diagram(app_label)
@@ -105,7 +116,10 @@ def make_diagram(app_label):
     entities = []
     for M in app_config.get_models():
         dic = to_dict(M)
-        dic['name'] = M.__name__
+        dic.update({
+            'name':  M.__name__,
+            'objectType': 'entity',
+        })
         options = {}
         for name in OPTIONS:
             value = getattr(M._meta, name)
@@ -177,6 +191,40 @@ def to_dict(model):
 
 import inspect
 
+ATTRS = '''
+    objectType
+    name
+    verbose_name
+    type
+
+    to
+    related_query_name
+    related_name
+    max_length
+    db_constraint
+    primary_key
+    unique
+    max_digits
+    decimal_places
+    blank
+    null
+    db_index
+    default
+    editable
+    serialize
+    unique_for_date
+    unique_for_month
+    unique_for_year
+    choices
+    db_column
+    db_tablespace
+    auto_created
+    on_delete
+    help_text
+'''
+
+ATTRS = [a for a in ATTRS.split() if a]
+
 class Field:
 
     @classmethod
@@ -187,12 +235,22 @@ class Field:
         assert not args
         if kwargs['type'] == 'AutoField' and name == 'id':
             return None
-        kwargs = cls.transform(kwargs, field)
-        if kwargs is None:
+        _kwargs = cls.transform(kwargs, field)
+        if _kwargs is None:
             return None
-        for k, v in tuple(kwargs.items()):
-            if inspect.isfunction(v) and v.__name__.isupper():
-                kwargs[k] = v.__name__
+        kwargs = {}
+        for k, v in tuple(_kwargs.items()):
+            if k not in ATTRS:
+                # print('discarded', k)
+                continue
+            if inspect.isfunction(v):
+                if v.__name__.isupper():
+                    kwargs[k] = v.__name__
+                continue
+            if '__proxy__' in str(type(v)):
+                kwargs[k] = str(v)
+                continue
+            kwargs[k] = v
         kwargs.setdefault('objectType', 'attribute')
         return kwargs
     
